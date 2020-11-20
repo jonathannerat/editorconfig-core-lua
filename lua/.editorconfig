@@ -1,0 +1,9 @@
+root = true
+indent_size = tab
+
+[*.rockspec]
+indent_style = space
+indent_size = tab
+
+[.editorconfig]
+charset = utf-8-bom
