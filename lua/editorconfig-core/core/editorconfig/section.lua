@@ -1,13 +1,13 @@
-local globtopattern = require 'globtopattern'.globtopattern
-local validate = require 'core.editorconfig.validate'.validate
+local globtopattern = require 'utils.globtopattern'.globtopattern
+local validate = require 'core.validate'.validate
 
 local Section = {}
 
 function Section:new(glob)
 	local o = {
 		glob = glob,
-		pattern = globtopattern(glob),
-		properties = {}
+		pattern = globtopattern(glob):sub(2, -2), -- remove ^ and $ from both ends
+		options = {}
 	}
 	self.__index = self
 	setmetatable(o, self)
@@ -17,7 +17,7 @@ end
 function Section:define(key, value)
 	local parsed_value = validate(key, value)
 	if parsed_value then
-		self.properties[key] = parsed_value
+		self.options[key] = parsed_value
 		return true
 	end
 end

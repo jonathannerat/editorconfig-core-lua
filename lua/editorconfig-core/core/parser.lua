@@ -4,14 +4,18 @@ local Section = require 'core.editorconfig.section'
 local M = {}
 
 local handlers = {
-	--- whitespace: do nothing
+	-- whitespace
 	['^%s*$'] = function() end,
-	--- comments: do nothing
+	-- comments
 	['^%s*[;#]'] = function() end,
-	--- pair: match key and value, and add them to the config
+	-- key-value pair
 	['^%s*(%S+)%s*=%s*(%S+)%s*'] = function(editorconfig, key, value)
 		if string.lower(key) == 'root' and string.lower(value) == 'true' then
-			editorconfig:set_root(true)
+			if not editorconfig:last_section() then
+				editorconfig.root = true
+			else
+				print(string.format("can't set root option inside a section"))
+			end
 		else
 			local section = editorconfig:last_section()
 			if section then
@@ -23,9 +27,9 @@ local handlers = {
 			end
 		end
 	end,
+	-- section
 	['^%s*%[(.*)%]%s*$'] = function(editorconfig, glob)
-		local section = Section:new(glob)
-		editorconfig:add_section(section)
+		editorconfig:add_section(Section:new(glob))
 	end
 }
 
