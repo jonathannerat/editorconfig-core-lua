@@ -13,11 +13,10 @@ description = {
 }
 dependencies = {
 	"lua >= 5.1",
-	"lua-glob-pattern >= 0.2",
 }
 build = {
 	type = "builtin",
 	modules = {
-		editorconfig = 'lua/core/editorconfig.lua'
+		editorconfig = 'lua/editorconfig-core/lib.lua'
 	}
 }
