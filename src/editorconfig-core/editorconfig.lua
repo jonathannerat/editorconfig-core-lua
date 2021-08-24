@@ -1,13 +1,12 @@
 local Glob = require 'editorconfig-core/glob'
 local log = require('editorconfig-core/utils').log
+local validate = require('editorconfig-core/validate').validate
 
-local nop = function() end
+local nop = function(_, _) end
 
-local EditorConfig
-local Section
+local Section = {}
 
-EditorConfig = {
-  __index = EditorConfig,
+local EditorConfig = {
   __tostring = function(self)
     local str = ''
     if self.root then
@@ -43,7 +42,9 @@ EditorConfig = {
       else
         local section = ec:last_section()
         if section then
-          section.props[key] = value
+          if not section:define(key, value) then
+            log.debug('invalid key-value pair: %s = %s', key, value)
+          end
         else
           log.debug('invalid option out of section: %s = %s', key, value)
         end
@@ -60,33 +61,37 @@ function EditorConfig:new(path)
   local o = { path = path }
   setmetatable(o, EditorConfig)
   self.__index = self
-  return o
-end
+  self = o
 
-function EditorConfig:parse()
   local f, err = io.open(self.path, 'r')
 
   if not err then
     for line in f:lines() do
+      local linematched = false
       for matcher, handler in pairs(EditorConfig.handlers) do
         local matches = { string.match(line, matcher) }
         if #matches > 0 then
+          linematched = true
           handler(self, unpack(matches))
         end
       end
+
+      if not linematched then
+        log.debug("invalid line: %s", line)
+        return nil
+      end
     end
   else
-    log.debug('error opening file: %s', err)
+    log.debug("can't open file: %s", err)
+    return nil
   end
+
+  return self
 end
 
 function EditorConfig:last_section()
   return self.sections[#self.sections]
 end
-
-Section = {
-  __index = Section,
-}
 
 function Section:new(glob)
   local o = {
@@ -94,8 +99,17 @@ function Section:new(glob)
     props = {},
   }
   setmetatable(o, self)
-  o.__index = o
+  self.__index = self
   return o
+end
+
+function Section:define(key, value)
+  value = validate(key, value)
+
+  if value then
+    self.props[key] = value
+    return true
+  end
 end
 
 return EditorConfig

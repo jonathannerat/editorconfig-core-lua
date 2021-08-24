@@ -20,8 +20,9 @@ build = {
    type = "builtin",
    modules = {
       ["editorconfig-core"] = "src/editorconfig-core.lua",
+      ["editorconfig-core/editorconfig"] = "src/editorconfig-core/editorconfig.lua",
       ["editorconfig-core/glob"] = "src/editorconfig-core/glob.lua",
       ["editorconfig-core/utils"] = "src/editorconfig-core/utils.lua",
-      ["editorconfig-core/editorconfig"] = "src/editorconfig-core/editorconfig.lua",
+      ["editorconfig-core/validate"] = "src/editorconfig-core/validate.lua",
    }
 }
