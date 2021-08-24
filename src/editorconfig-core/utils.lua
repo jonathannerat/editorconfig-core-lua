@@ -2,9 +2,11 @@ local M = {
   log = {},
 }
 
-local function fprintf(prefix)
+local function fprintf(level)
   return function(format, ...)
-    io.stderr:write(string.format(prefix .. ': ' .. format .. '\n', ...))
+    if level == "DEBUG" and DEBUG then
+      io.stderr:write(string.format(level .. ': ' .. format .. '\n', ...))
+    end
   end
 end
 
